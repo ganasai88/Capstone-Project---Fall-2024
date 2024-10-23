@@ -7,6 +7,8 @@ import time
 import base64
 import plotly.express as px
 import plotly.graph_objects as go
+from datetime import date
+from st_audiorec import st_audiorec
 
 K = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsdmlqcXplb3RkZGdjcG1zcWVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgzNjY4NTksImV4cCI6MjA0Mzk0Mjg1OX0.8u3MtBSBvMEvKaNEB1srPnNlDljZtNtZcZP4AvpICMk'
 A = 'https://vlvijqzeotddgcpmsqee.supabase.co/'
@@ -60,6 +62,8 @@ if "Student_login" and "st_ID" in st.session_state and st.session_state["Student
     ID = st.session_state['st_ID']
     row = pd.DataFrame(db.table('Students').select('*').eq('ID',ID).execute().data)
     data.success("Welcome "+row['Name'][0]+'😄')
+
+    ## upload option if it detects no photo in DB
     if row['Photo'][0]==None:
         ph = profile.empty()
         photo = ph.file_uploader('***upload photo***',)
@@ -73,6 +77,7 @@ if "Student_login" and "st_ID" in st.session_state and st.session_state["Student
             pic_up = profile.button('Remove')
             if pic_up:
                 rem(c=1)
+    ### retrieves photo from DB
     else:
         ph = profile.empty()
         photo = Image.open(BytesIO(pic_ret(ID,1)))
@@ -80,7 +85,7 @@ if "Student_login" and "st_ID" in st.session_state and st.session_state["Student
         pic_del = profile.button('Remove')
         if pic_del:
             rem(c=1)
-#Arial, sans-serif
+    ### Course Work Section
     data.markdown("""
 <h1 style="text-align: Center; font-family: Raleway;">Course Tracker</h1>
 <hr style="width: 1400px; height: 3px; background-color: #007bff; border: none; margin: auto;">
@@ -106,7 +111,35 @@ if "Student_login" and "st_ID" in st.session_state and st.session_state["Student
         CW_ch.plotly_chart(fig)
     else:
         CW_ch.image("https://cdn.pixabay.com/photo/2020/01/03/00/56/graph-4737109_640.jpg")
-        
+    
+    ### Attendence section
+    data.markdown("""
+<h1 style="text-align: Center; font-family: Raleway;">Attendence</h1>
+<hr style="width: 1400px; height: 3px; background-color: #007bff; border: none; margin: auto;">
+""",unsafe_allow_html=True)
+    
+    _,at1,_,at2,_ =data.columns([.2,.2,.1,.2,.3])
+    at1.markdown("""<h4>Select the course</h4>""",unsafe_allow_html=True)
+    dt = date.today()
+    a_ls = pd.DataFrame(db.table("Course Work").select('Course ID').eq('Status','TBA').eq('Student ID',ID).execute().data)
+    a_cid = at1.selectbox("Select the course",a_ls['Course ID'])
+    a_sb = at1.button('Verify')
+    if a_sb:
+        st.session_state['a_sb']=True
+    if 'a_sb' in st.session_state and st.session_state['a_sb']==True:
+        at2.markdown("""<h4>Record class audio to verify</h4>""",unsafe_allow_html=True)
+        at_val = at2.experimental_audio_input("Record")
+        at_sb = at2.button("Submit")
+        if at_sb:
+            st.session_state['at_sb']=True
+    if 'at_sb' in st.session_state and st.session_state['at_sb']:
+        at2.success("Recorded successfully")
+        time.sleep(1)
+        del st.session_state['a_sb']
+        del st.session_state['at_sb']
+        st.rerun()
+    
+    
 
     # data.success("Hello")
 elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin_login"]==True:
@@ -139,7 +172,7 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
 <hr style="width: 1400px; height: 3px; background-color: #007bff; border: none; margin: auto;">
 """,unsafe_allow_html=True)
     
-    _,cw1,_,cw2 =data.columns([.1,.2,.2,.5])
+    _,cw1,_,cw2,_ =data.columns([.1,.2,.1,.3,.3])
     cw1.markdown("""<h4>Select student_ID registered your Class</h4>""",unsafe_allow_html=True)
     st_ID = cw1.text_input("Enter the Student ID ")
     cw_search = cw1.button("Search")
@@ -167,3 +200,5 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
                del st.session_state['cw_sb']
         else:
             cw1.error("Please check the student if he enrolled to your class")
+else:
+    profile.warning("Show yourself!!")
