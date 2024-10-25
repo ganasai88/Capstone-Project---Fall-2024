@@ -6,10 +6,9 @@ Main Feature Focus: Attendance Tracking
 StakeHolder: Professor Raiful Hassan
 
 Technical Specifications:
-FrontEnd: Reactjs
-BackEnd: Python-Django
+Application Development: Streamlit
 DataBase: PostgreSQL
-Hosting: On AWS EC2
+Hosting: Planning to deploy On AWS EC2
 
 
 To run the Project:
