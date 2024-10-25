@@ -9,6 +9,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import date
 from st_audiorec import st_audiorec
+import wave
 
 K = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsdmlqcXplb3RkZGdjcG1zcWVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgzNjY4NTksImV4cCI6MjA0Mzk0Mjg1OX0.8u3MtBSBvMEvKaNEB1srPnNlDljZtNtZcZP4AvpICMk'
 A = 'https://vlvijqzeotddgcpmsqee.supabase.co/'
@@ -132,12 +133,22 @@ if "Student_login" and "st_ID" in st.session_state and st.session_state["Student
         at_sb = at2.button("Submit")
         if at_sb:
             st.session_state['at_sb']=True
-    if 'at_sb' in st.session_state and st.session_state['at_sb']:
-        at2.success("Recorded successfully")
-        time.sleep(1)
-        del st.session_state['a_sb']
-        del st.session_state['at_sb']
-        st.rerun()
+        if 'at_sb' in st.session_state and st.session_state['at_sb']:
+            dt = dt.strftime("%Y/%m/%d")
+            chc = db.table('Attendence').select('*').eq('Student ID',ID).eq('Date',dt).eq('Course ID',int(a_cid)).execute().data
+            if len(chc)==0:
+                at_val = wave.open(at_val,'rb')
+                at_val = at_val.readframes(at_val.getnframes())
+                at_val = base64.b64encode(at_val).decode('utf-8')
+                r = db.table('Attendence').insert([{'Date':dt,'Student ID':ID,'Course ID':int(a_cid),'Attendence':'PENDING','Audio':at_val}]).execute()
+                at2.success("Recorded successfully")
+                time.sleep(1)
+            else:
+                at2.warning('Attendence taken already')
+                time.sleep(1)
+            del st.session_state['a_sb']
+            del st.session_state['at_sb']
+            st.rerun()
     
     
 
@@ -146,6 +157,7 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
     ID = st.session_state['ad_usnm']
     row = pd.DataFrame(db.table('Admin').select('*').eq('Username',ID).execute().data)
     data.success("Welcome "+row['Name'][0]+'😄')
+    ## Profile Picture
     if row['Photo'][0]==None:
         ph = profile.empty()
         photo = ph.file_uploader('***upload photo***',)
@@ -166,7 +178,7 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
         pic_del = profile.button('Remove')
         if pic_del:
             rem(c=2)
-    
+    ## Student Course Tracker 
     data.markdown("""
 <h1 style="text-align: Center; font-family: Raleway;">Students Course Tracker</h1>
 <hr style="width: 1400px; height: 3px; background-color: #007bff; border: none; margin: auto;">
@@ -176,11 +188,10 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
     cw1.markdown("""<h4>Select student_ID registered your Class</h4>""",unsafe_allow_html=True)
     st_ID = cw1.text_input("Enter the Student ID ")
     cw_search = cw1.button("Search")
-
     if cw_search:
         st.session_state['cw_sb']=True
-
     if  'cw_sb' in st.session_state and st.session_state['cw_sb']==True:
+        cw2.write("")
         c_id=db.table('Professors').select('Course ID').eq('Professor ID',row['Professor ID'][0]).execute().data
         cw_ls = pd.DataFrame(db.table('Course Work').select('*').eq('Course ID',c_id[0]['Course ID']).eq('Student ID',int(st_ID)).eq('Status','TBA').execute().data)
         if len(cw_ls)>0:
@@ -200,5 +211,38 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
                del st.session_state['cw_sb']
         else:
             cw1.error("Please check the student if he enrolled to your class")
+
+
+    ## Attendence
+    data.markdown("""
+<h1 style="text-align: Center; font-family: Raleway;">Attendence</h1>
+<hr style="width: 1400px; height: 3px; background-color: #007bff; border: none; margin: auto;">
+""",unsafe_allow_html=True)
+
+    _,at1,_,at2,_ =data.columns([.1,.2,.1,.3,.3])
+    at1.markdown("""<h4>Select Course ID to take Attendence</h4>""",unsafe_allow_html=True)
+    ls = pd.DataFrame(db.table('Professors').select('Course ID').eq('Professor ID',row['Professor ID'][0]).execute().data)
+    at_ch=at1.selectbox("Enter",(ls['Course ID']))
+    dt = date.today()
+    if at1.button("Proceed"):
+        st.session_state['ad_at'] = True
+    if 'ad_at' in st.session_state and st.session_state['ad_at']==True:
+        at2.markdown("""<h4>Record class audio to verify</h4>""",unsafe_allow_html=True)
+        ad_val = at2.experimental_audio_input("Record")
+        ad_sb = at2.button("Upload")
+        if ad_sb:
+            st.session_state['ad_sb']=True
+        if 'ad_sb' in st.session_state and st.session_state['ad_sb']==True:
+            dt = dt.strftime("%Y/%m/%d")
+            chc = db.table('Professors').select('Course ID').eq('Professor ID',row['Professor ID'][0]).execute().data
+            ad_val = wave.open(ad_val,'rb')
+            ad_val = ad_val.readframes(ad_val.getnframes())
+            ad_val = base64.b64encode(ad_val).decode('utf-8')        
+            r = db.table('PF_Attendence').insert([{'Date':dt,'Professor ID':int(row['Professor ID'][0]),'Course ID':int(at_ch),'Audio':ad_val}]).execute()
+            at2.success("Recorded successfully")
+            time.sleep(1)
+            del st.session_state['ad_at']
+            del st.session_state['ad_sb']
+
 else:
     profile.warning("Show yourself!!")
