@@ -17,7 +17,20 @@ st.set_page_config(
     initial_sidebar_state="auto",
     layout = 'centered'
 )
-
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background: linear-gradient(rgba(255, 255, 255, .3), rgba(255, 255, 255, .4)), url("https://imgs.search.brave.com/idSlEnXY5LUDSYYYcIdc-fdU6KkxdW07U8LTxIoa4xg/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9sb2dv/cy13b3JsZC5uZXQv/d3AtY29udGVudC91/cGxvYWRzLzIwMjMv/MTIvS2VudC1TdGF0/ZS1Vbml2ZXJzaXR5/LVN5bWJvbC01MDB4/MjgxLnBuZw");
+        background-size: 40%;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: 55%;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 st.title("Kent State's Student Attendence")
 

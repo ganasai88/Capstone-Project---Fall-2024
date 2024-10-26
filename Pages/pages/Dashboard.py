@@ -20,6 +20,8 @@ st.set_page_config(
     initial_sidebar_state = 'expanded'
 )
 
+
+
 def rem(c):
     tb = 'Students'
     col = 'ID'
@@ -50,6 +52,20 @@ def pic_ret(ID,c):
 
 LO = st.button("Log out")
 profile,data = st.columns([0.2,0.8])
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background: linear-gradient(rgba(255, 255, 255, 1), rgba(255, 255, 255, .7)), url("https://scontent.fosu2-2.fna.fbcdn.net/v/t39.30808-6/326214745_566821231729496_3559174596691916573_n.jpg?stp=dst-jpg_s960x960&_nc_cat=110&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=jeTxkFdLA3UQ7kNvgGOOhVS&_nc_ht=scontent.fosu2-2.fna&_nc_gid=AAUZtd7CLuLs-uADNbpGcT1&oh=00_AYBDJJ0YJSfCTgAz-rMwIgkzu9QIgj7XfoY8FSzX7ckNNA&oe=67221532");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 if LO:
     st.session_state['st_ID'] = None
     st.session_state['Student_login'] =False
@@ -193,7 +209,7 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
     if  'cw_sb' in st.session_state and st.session_state['cw_sb']==True:
         cw2.write("")
         c_id=db.table('Professors').select('Course ID').eq('Professor ID',row['Professor ID'][0]).execute().data
-        cw_ls = pd.DataFrame(db.table('Course Work').select('*').eq('Course ID',c_id[0]['Course ID']).eq('Student ID',int(st_ID)).eq('Status','TBA').execute().data)
+        cw_ls = pd.DataFrame(db.table('Course Work').select('*').eq('Course ID',int(c_id[0]['Course ID'])).eq('Student ID',int(st_ID)).eq('Status','TBA').execute().data)
         if len(cw_ls)>0:
             cw_ls = pd.DataFrame(db.table('Course Tracker').select('*').in_('Course ID',cw_ls['Course ID']).order('Exam Date').execute().data)
             cw2.write(cw_ls)
@@ -243,6 +259,38 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
             time.sleep(1)
             del st.session_state['ad_at']
             del st.session_state['ad_sb']
-
+    _,at11,_,at22,_ =data.columns([.1,.2,.1,.3,.3])
+    at11.markdown("""<h4>Change in Attendence?</h4>""",unsafe_allow_html=True)
+    at_sb_ch = at11.selectbox("Select",ls['Course ID'])
+    at_ID = at11.text_input("Enter Student ID")
+    at_op = at11.selectbox('select the option',['Change in Attendence','List out - Attended','List out - Absent'])
+    at_ch_sb = at11.button("Fetch")
+    if at_ch_sb:
+        st.session_state['at_ch_ab']=True
+    if 'at_ch_ab' in st.session_state and st.session_state['at_ch_ab']:
+        if at_op=='Change in Attendence':
+            r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',at_sb_ch).eq('Student ID',int(at_ID)).execute().data)
+            at22.write(r.drop(columns=['Audio']))
+            at_sno = at22.text_input("Enter S.No ID")
+            at_c = at22.selectbox("select",['YES','NO'])
+            if at22.button('Change'):
+                r=db.table('Attendence').update({'Attendence':at_c}).eq('ID',int(at_sno)).execute()
+                at22.success('Updated!!')
+                time.sleep(1)
+                del st.session_state['at_ch_ab']
+        elif at_op=='List out - Attended':
+            r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',at_sb_ch).eq('Student ID',int(at_ID)).eq('Attendence','YES').execute().data)
+            if len(r)>0:
+                at22.write(r.drop(columns=['Audio']))
+                if at22.button('Done?'):
+                    del st.session_state['at_ch_ab']
+                    st.rerun()
+        elif at_op=='List out - Absent':
+            r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',at_sb_ch).eq('Student ID',int(at_ID)).eq('Attendence','NO').execute().data)
+            if len(r)>0:
+                at22.write(r.drop(columns=['Audio']))
+                if at22.button('Done?'):
+                    del st.session_state['at_ch_ab']
+                    st.rerun()
 else:
     profile.warning("Show yourself!!")
