@@ -56,31 +56,6 @@ def pic_ret(ID,c):
 
 LO = st.button("Log out")
 profile,data = st.columns([0.2,0.8])
-import streamlit as st
-from PIL import Image
-import pandas as pd
-from supabase import create_client
-from io import BytesIO
-import time
-import base64
-import plotly.express as px
-import plotly.graph_objects as go
-from datetime import date, datetime, timedelta
-from st_audiorec import st_audiorec
-import wave
-import numpy as np
-import scipy.io.wavfile as wavf
-from python_speech_features import mfcc
-from sklearn.metrics.pairwise import cosine_similarity
-
-K = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsdmlqcXplb3RkZGdjcG1zcWVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgzNjY4NTksImV4cCI6MjA0Mzk0Mjg1OX0.8u3MtBSBvMEvKaNEB1srPnNlDljZtNtZcZP4AvpICMk'
-A = 'https://vlvijqzeotddgcpmsqee.supabase.co/'
-db = create_client(A, K)
-
-# st.set_page_config(
-#     layout='wide',
-#     initial_sidebar_state='expanded'
-# )
 
 # Additional CSS styling
 st.markdown(
