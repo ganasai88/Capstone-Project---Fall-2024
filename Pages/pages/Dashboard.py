@@ -56,31 +56,6 @@ def pic_ret(ID,c):
 
 LO = st.button("Log out")
 profile,data = st.columns([0.2,0.8])
-import streamlit as st
-from PIL import Image
-import pandas as pd
-from supabase import create_client
-from io import BytesIO
-import time
-import base64
-import plotly.express as px
-import plotly.graph_objects as go
-from datetime import date, datetime, timedelta
-from st_audiorec import st_audiorec
-import wave
-import numpy as np
-import scipy.io.wavfile as wavf
-from python_speech_features import mfcc
-from sklearn.metrics.pairwise import cosine_similarity
-
-K = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsdmlqcXplb3RkZGdjcG1zcWVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgzNjY4NTksImV4cCI6MjA0Mzk0Mjg1OX0.8u3MtBSBvMEvKaNEB1srPnNlDljZtNtZcZP4AvpICMk'
-A = 'https://vlvijqzeotddgcpmsqee.supabase.co/'
-db = create_client(A, K)
-
-# st.set_page_config(
-#     layout='wide',
-#     initial_sidebar_state='expanded'
-# )
 
 # Additional CSS styling
 st.markdown(
@@ -89,7 +64,7 @@ st.markdown(
     /* App Background */
     .stApp {
         background: linear-gradient(rgba(240, 248, 255, 0.9), rgba(230, 230, 250, 0.7)),
-                    url("https://cdn.pixabay.com/photo/2020/01/03/00/56/graph-4737109_640.jpg");
+                    url("https://imgs.search.brave.com/vW6JK7sBhpNgmDbgRyWmLzGONQI6M3sUm6fUWiKUd6A/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvMTMw/ODk2MTM2Ny9waG90/by9rZW50LXN0YXRl/LXVuaXZlcnNpdHkt/Y2FtcHVzLW9oaW8t/dXNhLmpwZz9zPTYx/Mng2MTImdz0wJms9/MjAmYz1ZSDZBUF9W/YWVpVmJlVzZNWEo3/NF9IRkI0dTY2a0F2/cEQzYWNocjFBRTFz/PQ");
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
@@ -194,33 +169,7 @@ if "Student_login" and "st_ID" in st.session_state and st.session_state["Student
         pic_del = profile.button('Remove')
         if pic_del:
             rem(c=1)
-    ### Course Work Section
-    data.markdown("""
-<h1 style="text-align: Center; font-family: Raleway;">Course Tracker</h1>
-<hr style="width: 1400px; height: 3px; background-color: #007bff; border: none; margin: auto;">
-""",unsafe_allow_html=True)
-    
-    ls = pd.DataFrame(db.table("Course Work").select('Semester').eq('Student ID',ID).execute().data).drop_duplicates()
-    _,cw1,cw2 =data.columns([.2,.3,.5])
-    cw1.markdown("""<h4>Select the Semester</h4>""",unsafe_allow_html=True)
-    choice = cw1.selectbox("choose",list(ls['Semester']),)
-    if cw1.button("Fetch"):
-        st.session_state['CW_sem']=choice
-    _, CW_ch, _ = data.columns([.2,.4,.4])
-    if 'CW_sem' in st.session_state:
-        ls = pd.DataFrame(db.table("Course Work").select('Course ID').eq('Student ID',ID).eq('Semester',st.session_state['CW_sem']).execute().data)
-        
-        df_cw = pd.DataFrame(db.table("Course Tracker").select('*').eq('Student ID',ID).in_("Course ID",ls['Course ID'].tolist()).execute().data)
-        df_cw = df_cw.drop(columns=['Student ID','S.No'])
-        temp = pd.DataFrame()
-        fig = go.Figure()
-        for i in df_cw['Course ID'].unique():
-            temp = df_cw[df_cw['Course ID']==i].sort_values(by=['Exam Date'])
-            fig.add_trace(go.Scatter(y =temp['Marks'],x=temp['Exam Date'],mode='lines+markers',text=temp['Result']),)
-        CW_ch.plotly_chart(fig)
-    else:
-        CW_ch.image("https://cdn.pixabay.com/photo/2020/01/03/00/56/graph-4737109_640.jpg")
-    
+  
     ### Attendence section
     data.markdown("""
 <h1 style="text-align: Center; font-family: Raleway;">Attendence</h1>
@@ -250,7 +199,9 @@ if "Student_login" and "st_ID" in st.session_state and st.session_state["Student
             dt = dt.strftime("%Y/%m/%d")
             a_p_id = db.table('Professors').select('Professor ID').eq('Course ID',a_cid).execute().data
             at_p_val = db.table('PF_Attendence').select('*').eq('Professor ID',int(a_p_id[0]['Professor ID'])).eq('Date',dt).execute().data
+            
             if len(at_p_val):
+                
                 audio = base64.b64decode(at_p_val[0]['Audio'])
                 with wave.open('Professor.wav', 'wb') as wf:
                     wf.setnchannels(1)
@@ -264,18 +215,41 @@ if "Student_login" and "st_ID" in st.session_state and st.session_state["Student
                     wf.setframerate(48000)
                     wf.writeframes(f1)
                     wf.close()
+                
                 chc = db.table('Attendence').select('*').eq('Student ID',ID).eq('Date',dt).eq('Course ID',int(a_cid)).execute().data
                 if len(chc)==0:
+                    at_end = datetime.strftime(at_end,'%H:%M:%S.%f')
+                    at_start = datetime.strftime(at_start,'%H:%M:%S.%f')
+                    at_start = datetime.strptime(at_start,'%H:%M:%S.%f')
+                    at_end=datetime.strptime(at_end,'%H:%M:%S.%f')
+                    at_end_p=datetime.strptime(at_p_val[0]['Time_End'],'%H:%M:%S.%f')
+                    at_start_p=datetime.strptime(at_p_val[0]['Time_Start'],'%H:%M:%S.%f')
+                    tol_s= at_end-at_end_p
+                    if tol_s<timedelta(seconds=10):
+                        at2.success('In time')
+                        time.sleep(1)
+                    # else:
+                    #     db.table('Attendence').insert([{'Date':dt,'Student ID':ID,'Course ID':int(a_cid),'Attendence': 'NO',"Time_Start":at_start.strftime('%H:%M:%S.%f'),"Time_End":at_end.strftime('%H:%M:%S.%f')}]).execute()
+                    #     at2.error('Sorry not in time')
+                    #     time.sleep(1)
+                    #     del st.session_state['at_sb']
+                    #     del st.session_state['a_sb']
+                    #     st.rerun()
+                    if (at_end_p-at_start_p)/(at_end-at_start)>1:
+                        db.table('Attendence').insert([{'Date':dt,'Student ID':ID,'Course ID':int(a_cid),'Attendence': 'NO',"Time_Start":at_start.strftime('%H:%M:%S.%f'),"Time_End":at_end.strftime('%H:%M:%S.%f')}]).execute()
+                        at2.error('Sorry Insufficient audio to analyse')
+                        time.sleep(1)
+                        del st.session_state['at_sb']
+                        del st.session_state['a_sb']
+                        st.rerun()
                     pro = Feature('Professor.wav')
                     stu = Feature('Student.wav')
                     AT = "NO"
                     confidence = cosine_similarity(np.reshape(pro,(1,-1)),np.reshape(stu,(1,-1)))[0][0]
                     print(confidence)
-                    if confidence>.80:
+                    if confidence>.90:
                         AT = "YES"
-                    at_end=at_end.strftime('%H:%M:%S.%f')
-                    at_start=at_start.strftime('%H:%M:%S.%f')
-                    r = db.table('Attendence').insert([{'Date':dt,'Student ID':ID,'Course ID':int(a_cid),'Attendence': AT,"Time_Start":at_start,"Time_End":at_end}]).execute()                    
+                    r = db.table('Attendence').insert([{'Date':dt,'Student ID':ID,'Course ID':int(a_cid),'Attendence': AT,"Time_Start":at_start.strftime('%H:%M:%S.%f'),"Time_End":at_end.strftime('%H:%M:%S.%f')}]).execute()                    
                     if AT=='YES':
                         at2.success("Recorded successfully")
                     else:
@@ -318,40 +292,6 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
         pic_del = profile.button('Remove')
         if pic_del:
             rem(c=2)
-    ## Student Course Tracker 
-    data.markdown("""
-<h1 style="text-align: Center; font-family: Raleway;">Students Course Tracker</h1>
-<hr style="width: 1400px; height: 3px; background-color: #007bff; border: none; margin: auto;">
-""",unsafe_allow_html=True)
-    
-    _,cw1,_,cw2,_ =data.columns([.1,.2,.1,.3,.3])
-    cw1.markdown("""<h4>Select student_ID registered your Class</h4>""",unsafe_allow_html=True)
-    st_ID = cw1.text_input("Enter the Student ID ")
-    cw_search = cw1.button("Search")
-    if cw_search:
-        st.session_state['cw_sb']=True
-    if  'cw_sb' in st.session_state and st.session_state['cw_sb']==True:
-        cw2.write("")
-        c_id=db.table('Professors').select('Course ID').eq('Professor ID',row['Professor ID'][0]).execute().data
-        cw_ls = pd.DataFrame(db.table('Course Work').select('*').eq('Course ID',int(c_id[0]['Course ID'])).eq('Student ID',int(st_ID)).eq('Status','TBA').execute().data)
-        if len(cw_ls)>0:
-            cw_ls = pd.DataFrame(db.table('Course Tracker').select('*').in_('Course ID',cw_ls['Course ID']).order('Exam Date').execute().data)
-            cw2.write(cw_ls)
-            c_ch=cw2.selectbox("choose the course", cw_ls['Course ID'].unique())
-            c_dt=cw2.selectbox("choose the date", cw_ls['Exam Date'].unique())
-            c_sc=cw2.text_input("Enter score to change")
-            c_sb=cw2.button("Submit")
-            if c_sb:
-               r = "PASS" if int(c_sc)>=50 else "FAIL"
-               r=db.table('Course Tracker').update({'Result':r,'Marks':int(c_sc)}).eq('Exam Date',c_dt).eq('Course ID',c_ch).execute()
-               if r:
-                    cw2.success('updated Successfully')
-               else:
-                    cw2.error("Try again")
-               del st.session_state['cw_sb']
-        else:
-            cw1.error("Please check the student if he enrolled to your class")
-
 
     ## Attendence
     data.markdown("""
@@ -379,20 +319,38 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
         if 'ad_sb' in st.session_state and st.session_state['ad_sb']==True:
             dt = dt.strftime("%Y/%m/%d")
             chc = db.table('Professors').select('Course ID').eq('Professor ID',row['Professor ID'][0]).execute().data
-            ad_val = wave.open(ad_val,'rb')
-            ad_f = ad_val.getnframes()
-            ad_fr = ad_val.getframerate()
-            ad_d = ad_f/float(ad_fr)
-            ad_val = ad_val.readframes(ad_f)
-            ad_val = base64.b64encode(ad_val).decode('utf-8')
-            at_end=at_end.strftime('%H:%M:%S.%f')
-            at_start=at_start.strftime('%H:%M:%S.%f')
-            r = db.table('PF_Attendence').insert([{'Date':dt,'Professor ID':int(row['Professor ID'][0]),'Course ID':int(at_ch),'Audio':ad_val,"Time_Start":at_start,"Time_End":at_end}]).execute()
-            at2.success("Recorded successfully")
-            time.sleep(1)
-            del st.session_state['ad_at']
-            del st.session_state['ad_sb']
-            st.rerun()
+            chc2 = db.table('PF_Attendence').select('*').eq('Professor ID',row['Professor ID'][0]).eq('Date',dt).eq('Course ID',at_ch).execute().data
+            if len(chc2)>0:
+                st.session_state['at_ch']=True
+            if 'at_ch' in st.session_state and st.session_state['at_ch']:
+                at1.write("Want to Overwrite?")
+                ch = at1.radio(label="Want to Overwrite?",options=['Overwrite','Deny it'])
+                at_ch_sb1 = at1.button('Proceed!!')
+                if at_ch_sb1 and ch=='Overwrite':
+                    res=db.table('PF_Attendence').delete().eq('Professor ID',row['Professor ID'][0]).eq('Date',dt).eq('Course ID',at_ch).execute().data
+                    del st.session_state['at_ch']
+                    st.rerun()
+                if at_ch_sb1 and ch=='Deny it':
+                    del st.session_state['at_ch']
+                    del st.session_state['ad_sb']
+                    del st.session_state['ad_at']
+                    st.rerun()
+
+            else:
+                ad_val = wave.open(ad_val,'rb')
+                ad_f = ad_val.getnframes()
+                ad_fr = ad_val.getframerate()
+                ad_d = ad_f/float(ad_fr)
+                ad_val = ad_val.readframes(ad_f)
+                ad_val = base64.b64encode(ad_val).decode('utf-8')
+                at_end=at_end.strftime('%H:%M:%S.%f')
+                at_start=at_start.strftime('%H:%M:%S.%f')
+                r = db.table('PF_Attendence').insert([{'Date':dt,'Professor ID':int(row['Professor ID'][0]),'Course ID':int(at_ch),'Audio':ad_val,"Time_Start":at_start,"Time_End":at_end}]).execute()
+                at2.success("Recorded successfully")
+                time.sleep(1)
+                del st.session_state['ad_at']
+                del st.session_state['ad_sb']
+                st.rerun()
     _,at11,_,at22,_ =data.columns([.1,.2,.1,.3,.3])
     at11.markdown("""<h4>Change in Attendence?</h4>""",unsafe_allow_html=True)
     at_sb_ch = at11.selectbox("Select",ls['Course ID'])
