@@ -264,9 +264,28 @@ if "Student_login" and "st_ID" in st.session_state and st.session_state["Student
             del st.session_state['at_sb']
             st.rerun()
     
+    data.markdown("""
+<h1 style="text-align: Center; font-family: Raleway;">Send Message</h1>
+<hr style="width: 1400px; height: 3px; background-color: #007bff; border: none; margin: auto;">
+""",unsafe_allow_html=True)
     
+    _,at11,_,at22,_ = data.columns([.2,.2,.1,.2,.3])
+    at11.markdown("""<h4>Select the course</h4>""",unsafe_allow_html=True)
+    r=pd.DataFrame(db.table('Course Work').select('Course ID').eq('Student ID',ID).eq('Status','TBA').execute().data)
+    if len(r)>0:
+        mcc = at11.selectbox('Course',r['Course ID'])
+        if at11.button('Fetch'):
+            st.session_state['mcc']=True
+    if 'mcc' in st.session_state and st.session_state['mcc']:
+        at22.markdown("""<h4>Write the message</h4>""",unsafe_allow_html=True)
+        msg = at22.text_area("Message")
+        if at22.button('send'):
+            db.table('Message').insert([{'Course ID': int(mcc),'Student ID':int(ID),'Message':msg,'Status':'Unread'}]).execute()
+            at22.success('Sent the Message!!')
+            time.sleep(1)
+            del st.session_state['mcc']
+            st.rerun()
 
-    # data.success("Hello")
 elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin_login"]==True:
     ID = st.session_state['ad_usnm']
     row = pd.DataFrame(db.table('Admin').select('*').eq('Username',ID).execute().data)
@@ -355,34 +374,98 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
     at11.markdown("""<h4>Change in Attendence?</h4>""",unsafe_allow_html=True)
     at_sb_ch = at11.selectbox("Select",ls['Course ID'])
     at_ID = at11.text_input("Enter Student ID")
-    at_op = at11.selectbox('select the option',['Change in Attendence','List out - Attended','List out - Absent'])
+    at_op = at11.selectbox('select the option',['Change in Attendence','List out - Attended','List out - Absent','Delete a record'])
     at_ch_sb = at11.button("Fetch")
     if at_ch_sb:
         st.session_state['at_ch_ab']=True
     if 'at_ch_ab' in st.session_state and st.session_state['at_ch_ab']:
         if at_op=='Change in Attendence':
             r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',at_sb_ch).eq('Student ID',int(at_ID)).execute().data)
-            at22.write(r.drop(columns=['Audio']))
+            at22.write(r)
             at_sno = at22.text_input("Enter S.No ID")
             at_c = at22.selectbox("select",['YES','NO'])
             if at22.button('Change'):
                 r=db.table('Attendence').update({'Attendence':at_c}).eq('ID',int(at_sno)).execute()
-                at22.success('Updated!!')
+                if len(r):
+                    at22.success('Updated!!')
+                else:
+                    at22.warning('Record not found')
                 time.sleep(1)
                 del st.session_state['at_ch_ab']
         elif at_op=='List out - Attended':
             r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',at_sb_ch).eq('Student ID',int(at_ID)).eq('Attendence','YES').execute().data)
             if len(r)>0:
-                at22.write(r.drop(columns=['Audio']))
+                at22.write(r)
                 if at22.button('Done?'):
                     del st.session_state['at_ch_ab']
                     st.rerun()
         elif at_op=='List out - Absent':
             r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',at_sb_ch).eq('Student ID',int(at_ID)).eq('Attendence','NO').execute().data)
             if len(r)>0:
-                at22.write(r.drop(columns=['Audio']))
+                at22.write(r)
                 if at22.button('Done?'):
                     del st.session_state['at_ch_ab']
                     st.rerun()
+        elif at_op=='Delete a record':
+            r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',at_sb_ch).eq('Student ID',int(at_ID)).execute().data)
+            at22.write(r)
+            at_sno = at22.text_input("Enter ID.no")
+            at_c = at22.selectbox("select",['Delete Record','Cancel Operation'])
+            if at22.button('Apply'):
+                if at_c=='Delete Record':
+                    r=db.table('Attendence').delete().eq('ID',int(at_sno)).execute().data
+                    if len(r)>0:
+                        at22.success('Deleted!!')
+                    else:
+                        at22.warning("Record not found")
+                    time.sleep(1)
+                del st.session_state['at_ch_ab']
+        
+    data.markdown("""
+<h1 style="text-align: Center; font-family: Raleway;">Notification Inbox</h1>
+<hr style="width: 1400px; height: 3px; background-color: #007bff; border: none; margin: auto;">
+""",unsafe_allow_html=True)
+    
+    _,ad11,_,ad22,_ =data.columns([.1,.2,.1,.3,.3])
+    ad11.markdown("""<h4>Select the Student ID</h4>""",unsafe_allow_html=True)
+    res = pd.DataFrame(db.table('Message').select('Student ID').execute().data)
+    IDs = res['Student ID'].unique()
+    res = pd.DataFrame(db.table('Students').select('Name').in_('ID',IDs).execute().data)
+    mc = ad11.selectbox('Select the ID',res['Name']+' - '+str(IDs))
+    mc1 = ad11.selectbox('choose',['Read','Unread'])
+    mc = mc[mc.index('[')+1:-1]
+    mc = int(mc)
+    if ad11.button('Fetch!'):
+        st.session_state['fetch']=True
+    if 'fetch' in st.session_state and st.session_state['fetch']:
+        res = pd.DataFrame(db.table('Message').select('*').eq('Student ID',mc).eq('Status',mc1).execute().data)
+        ad22.markdown("""<h4>Select the ID to view the Message</h4>""",unsafe_allow_html=True)
+        if len(res)>0:
+            msg_ch = ad22.selectbox("select",res['ID'])
+            if ad22.button('view'):
+                st.session_state['view']=True
+        else:
+            ad22.warning("Sorry no messages found!!")
+            time.sleep(1)
+            del st.session_state['fetch']
+            st.rerun()
+    if 'view' in st.session_state and st.session_state['view']:
+        ad22.write(res[res['ID']==msg_ch]['Message'][0])
+        adch = ad22.selectbox('choose',['-','Mark as Read','Leave unread'])
+        if ad22.button('Submit!'):
+            st.session_state['RU']=True
+    if 'RU' in st.session_state and st.session_state['RU']:
+        if adch=='Mark as Read':
+            #db.table(tb).update({'Photo':image}).eq(col,ID).execute()
+            db.table('Message').update({'Status':'Read'}).eq('ID',msg_ch).execute()
+        elif adch=='Leave unread':
+            db.table('Message').update({'Status':'Unread'}).eq('ID',msg_ch).execute()
+        else:
+            pass
+        del st.session_state['RU']
+        del st.session_state['fetch']
+        del st.session_state['view']
+        st.rerun()
+
 else:
     profile.warning("Show yourself!!")
