@@ -15,7 +15,7 @@ db = create_client(A,K)
 
 st.set_page_config(
     page_title="Kent State University",
-    page_icon="C:/Users/KOTA SRI SURYA TEJA/Desktop/K+Emblem/K Emblem/K Emblem PNGs/K_Emblem_RGB.png",
+    #page_icon="C:/Users/KOTA SRI SURYA TEJA/Desktop/K+Emblem/K Emblem/K Emblem PNGs/K_Emblem_RGB.png",
     initial_sidebar_state="auto",
     layout = 'centered'
 )
