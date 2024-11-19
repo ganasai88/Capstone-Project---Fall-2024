@@ -450,7 +450,8 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
             del st.session_state['fetch']
             st.rerun()
     if 'view' in st.session_state and st.session_state['view']:
-        ad22.write(res[res['ID']==msg_ch]['Message'][0])
+        l = res[res['ID']==msg_ch]['Message'].tolist()
+        ad22.write(l[0])
         adch = ad22.selectbox('choose',['-','Mark as Read','Leave unread'])
         if ad22.button('Submit!'):
             st.session_state['RU']=True
