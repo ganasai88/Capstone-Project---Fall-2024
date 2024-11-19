@@ -98,6 +98,7 @@ with bcol2:
             print(db_res['Address'][0]==base64.b64encode(find_address().encode()).decode('utf-8'))
             print(db_res['Address'][0])
             print(base64.b64encode(find_address().encode()).decode('utf-8'))
+            print(base64.b64encode(find_address().encode())
             if len(db_res)>0 and db_res['Address'][0]==base64.b64encode(find_address().encode()).decode('utf-8'):
                 find_address()
                 st.session_state['st_ID']=st_ID
