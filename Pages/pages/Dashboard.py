@@ -120,10 +120,6 @@ st.markdown(
 
 
 
-# Now, you can keep the rest of your code as is.
-# Your custom CSS styles will be applied to the app, giving it a more appealing look and feel.
-
-
 
 def Feature(a):
     sr, val = wavf.read(a)
