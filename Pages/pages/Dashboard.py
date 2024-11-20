@@ -120,6 +120,10 @@ st.markdown(
 
 
 
+# Now, you can keep the rest of your code as is.
+# Your custom CSS styles will be applied to the app, giving it a more appealing look and feel.
+
+
 
 def Feature(a):
     sr, val = wavf.read(a)
@@ -224,13 +228,13 @@ if "Student_login" and "st_ID" in st.session_state and st.session_state["Student
                     if tol_s<timedelta(seconds=10):
                         at2.success('In time')
                         time.sleep(1)
-                    else:
-                        db.table('Attendence').insert([{'Date':dt,'Student ID':ID,'Course ID':int(a_cid),'Attendence': 'NO',"Time_Start":at_start.strftime('%H:%M:%S.%f'),"Time_End":at_end.strftime('%H:%M:%S.%f')}]).execute()
-                        at2.error('Sorry not in time')
-                        time.sleep(1)
-                        del st.session_state['at_sb']
-                        del st.session_state['a_sb']
-                        st.rerun()
+                    # else:
+                    #     db.table('Attendence').insert([{'Date':dt,'Student ID':ID,'Course ID':int(a_cid),'Attendence': 'NO',"Time_Start":at_start.strftime('%H:%M:%S.%f'),"Time_End":at_end.strftime('%H:%M:%S.%f')}]).execute()
+                    #     at2.error('Sorry not in time')
+                    #     time.sleep(1)
+                    #     del st.session_state['at_sb']
+                    #     del st.session_state['a_sb']
+                    #     st.rerun()
                     if (at_end_p-at_start_p)/(at_end-at_start)>1:
                         db.table('Attendence').insert([{'Date':dt,'Student ID':ID,'Course ID':int(a_cid),'Attendence': 'NO',"Time_Start":at_start.strftime('%H:%M:%S.%f'),"Time_End":at_end.strftime('%H:%M:%S.%f')}]).execute()
                         at2.error('Sorry Insufficient audio to analyse')
@@ -370,7 +374,7 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
     at11.markdown("""<h4>Change in Attendence?</h4>""",unsafe_allow_html=True)
     at_sb_ch = at11.selectbox("Select",ls['Course ID'])
     at_ID = at11.text_input("Enter Student ID")
-    at_op = at11.selectbox('select the option',['Change in Attendence','List out - Attended','List out - Absent','Delete a record'])
+    at_op = at11.selectbox('select the option',['Change in Attendence','Approval Key','List out - Attended','List out - Absent','Delete a record'])
     at_ch_sb = at11.button("Fetch")
     if at_ch_sb:
         st.session_state['at_ch_ab']=True
@@ -388,6 +392,18 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
                     at22.warning('Record not found')
                 time.sleep(1)
                 del st.session_state['at_ch_ab']
+        elif at_op=='Approval Key':
+            r = db.table('Students').select('Status').eq('ID',int(at_ID)).execute().data
+            if r[0]['Status']=='REQUIRED':
+                r = db.table('Students').update({'Status':'APPROVED'}).eq('ID',int(at_ID)).execute()
+                if r:
+                    at11.success('Approved!!')
+                    time.sleep(1)
+            else:
+                at11.warning('No need to Approve!!')
+                time.sleep(1)
+            del st.session_state['at_ch_ab']
+            st.rerun()
         elif at_op=='List out - Attended':
             r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',at_sb_ch).eq('Student ID',int(at_ID)).eq('Attendence','YES').execute().data)
             if len(r)>0:
@@ -463,6 +479,7 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
         del st.session_state['fetch']
         del st.session_state['view']
         st.rerun()
-
+    
+    
 else:
     profile.warning("Show yourself!!")
