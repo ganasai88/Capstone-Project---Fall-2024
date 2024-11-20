@@ -1,10 +1,11 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 from supabase import create_client
 import uuid
 import base64
-
+import time
+from extra_streamlit_components import CookieManager
+from datetime import datetime
 # Set page configuration
 
 K = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsdmlqcXplb3RkZGdjcG1zcWVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgzNjY4NTksImV4cCI6MjA0Mzk0Mjg1OX0.8u3MtBSBvMEvKaNEB1srPnNlDljZtNtZcZP4AvpICMk'
@@ -15,7 +16,7 @@ db = create_client(A,K)
 
 st.set_page_config(
     page_title="Kent State University",
-    #page_icon="C:/Users/KOTA SRI SURYA TEJA/Desktop/K+Emblem/K Emblem/K Emblem PNGs/K_Emblem_RGB.png",
+    page_icon="C:/Users/KOTA SRI SURYA TEJA/Desktop/K+Emblem/K Emblem/K Emblem PNGs/K_Emblem_RGB.png",
     initial_sidebar_state="auto",
     layout = 'centered'
 )
@@ -34,10 +35,16 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+cookie_manager = CookieManager()
+cookies = cookie_manager.get_all()
+
+#74c8d689-a70c-11ef-b645-0897987298c2
+
 st.title("Kent State's Student Attendence")
 
 # Initialize session state variables if they do not exist
 st.session_state['goto'] = ''
+
 
 # Create two columns for buttons and forms
 bcol1, bcol2 = st.columns(2)
@@ -90,24 +97,41 @@ with bcol2:
     if option=='Login':
         st_ID = bcol2.text_input("ID",value="811262686")
         st_passwd = bcol2.text_input("Password", type='password',value='Mani')
-        st_button = bcol2.button("Submit Student")
-
-        if st_button:
-            st.session_state["goto"] = None  # Hide the form after submission
-            db_res=pd.DataFrame(db.table('Students').select('*').eq('ID',st_ID).eq('Passwd',st_passwd).execute().data)
-            print(db_res['Address'][0]==base64.b64encode(find_address().encode()).decode('utf-8'))
-            print(db_res['Address'][0])
-            print(base64.b64encode(find_address().encode()).decode('utf-8'))
+        sub_b, for_b = bcol2.columns([.5,.5])
+        if sub_b.button("Submit Student"):
             
-            if len(db_res)>0 and db_res['Address'][0]==base64.b64encode(find_address().encode()).decode('utf-8'):
+            st.session_state["goto"] = None  # Hide the form after submission
+            Dev_ID = cookies.get('Device_ID')
+            db_res=pd.DataFrame(db.table('Students').select('*').eq('ID',st_ID).eq('Passwd',st_passwd).execute().data)
+            c = db.table('Students').select('*').eq('Address',Dev_ID).execute().data
+            if len(db_res)>0 and db_res['Address'][0]==Dev_ID and len(c)==1:
                 find_address()
                 st.session_state['st_ID']=st_ID
                 st.session_state['Student_login']=True
                 st.session_state['goto']='admin'
                 st.switch_page("pages/Dashboard.py")
             else:
-                st.error("Please check the student creds/device!!")
-            
+                st.error("Please check the Creds/Key")
+        if for_b.button("Forgot/Generate?"):
+            st.session_state['Key']=True
+            db_res=pd.DataFrame(db.table('Students').select('*').eq('ID',st_ID).eq('Passwd',st_passwd).execute().data)
+            if db_res['Status'][0]=='NOT REQUIRED':
+                db.table("Students").update({'Status':'REQUIRED'}).eq('ID',st_ID).eq('Passwd',st_passwd).execute()
+                cookie_manager.delete("Device_ID")
+                bcol2.success("Request Submmitted!!")
+                time.sleep(1)
+                st.rerun()
+            elif db_res['Status'][0]=='REQUIRED':
+                bcol2.warning("Pending to approve!!")
+                time.sleep(1)
+                st.rerun()
+            elif db_res['Status'][0]=='APPROVED':
+                cookie_manager.set('Device_ID', str(uuid.uuid1()), expires_at=datetime.fromisoformat("2026-12-31T23:59:59"))
+                r= db.table("Students").update({'Address':cookies.get('Device_ID'),'Status':'NOT REQUIRED'}).eq('ID',st_ID).eq('Passwd',st_passwd).execute()
+                time.sleep(1)
+                st.rerun()
+
+
     if option=='Signup':
         bcol2.warning("Please sign up from your permanent device")
         st_ID = bcol2.text_input("ID",value='811262689')
