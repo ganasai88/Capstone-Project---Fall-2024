@@ -117,7 +117,6 @@ with bcol2:
             db_res=pd.DataFrame(db.table('Students').select('*').eq('ID',st_ID).eq('Passwd',st_passwd).execute().data)
             if db_res['Status'][0]=='NOT REQUIRED':
                 db.table("Students").update({'Status':'REQUIRED'}).eq('ID',st_ID).eq('Passwd',st_passwd).execute()
-                cookie_manager.delete("Device_ID")
                 bcol2.success("Request Submmitted!!")
                 time.sleep(1)
                 st.rerun()
