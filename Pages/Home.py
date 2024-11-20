@@ -104,7 +104,7 @@ with bcol2:
             print(db_res['Address'][0])
             ### check
             st.write(f"Screen width is {streamlit_js_eval(js_expressions='window.innerWidth', key='WIDTH',  want_output = True,)}")
-            
+            time.sleep(3)
             #print(hashlib.sha256(f"{user_agent}{ip_address}".encode()).hexdigest())
             ### check
             #print(base64.b64encode(find_address().encode()).decode('utf-8'))
