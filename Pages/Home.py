@@ -38,7 +38,6 @@ st.markdown(
 cookie_manager = CookieManager()
 cookies = cookie_manager.get_all()
 
-
 #74c8d689-a70c-11ef-b645-0897987298c2
 
 st.title("Kent State's Student Attendence")
@@ -118,6 +117,7 @@ with bcol2:
             db_res=pd.DataFrame(db.table('Students').select('*').eq('ID',st_ID).eq('Passwd',st_passwd).execute().data)
             if db_res['Status'][0]=='NOT REQUIRED':
                 db.table("Students").update({'Status':'REQUIRED'}).eq('ID',st_ID).eq('Passwd',st_passwd).execute()
+                cookie_manager.delete("Device_ID")
                 bcol2.success("Request Submmitted!!")
                 time.sleep(1)
                 st.rerun()
