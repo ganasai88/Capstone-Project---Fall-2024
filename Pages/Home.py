@@ -103,7 +103,7 @@ with bcol2:
             print(db_res['Address'][0]==base64.b64encode(find_address().encode()).decode('utf-8'))
             print(db_res['Address'][0])
             ### check
-            st.write(f"Screen width is {streamlit_js_eval(js_expressions='screen.width', key = 'SCR')}")
+            st.write(f"Screen width is {streamlit_js_eval(js_expressions='window.innerWidth', key='WIDTH',  want_output = True,)}")
             
             #print(hashlib.sha256(f"{user_agent}{ip_address}".encode()).hexdigest())
             ### check
