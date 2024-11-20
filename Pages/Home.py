@@ -7,6 +7,7 @@ import base64
 import os
 import uuid
 import hashlib
+from streamlit_js_eval import streamlit_js_eval
 
 # Set page configuration
 
@@ -102,10 +103,7 @@ with bcol2:
             print(db_res['Address'][0]==base64.b64encode(find_address().encode()).decode('utf-8'))
             print(db_res['Address'][0])
             ### check
-            user_agent = st.query_params
-            print(user_agent)
-            ip_address = st.cache_resource
-            print(ip_address)
+            st.write(f"Screen width is {streamlit_js_eval(js_expressions='screen.width', key = 'SCR')}")
             #print(hashlib.sha256(f"{user_agent}{ip_address}".encode()).hexdigest())
             ### check
             #print(base64.b64encode(find_address().encode()).decode('utf-8'))
