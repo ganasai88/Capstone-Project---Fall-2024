@@ -38,7 +38,7 @@ st.markdown(
 cookie_manager = CookieManager()
 cookies = cookie_manager.get_all()
 
-st.write(cookies)
+
 #74c8d689-a70c-11ef-b645-0897987298c2
 
 st.title("Kent State's Student Attendence")
