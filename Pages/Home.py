@@ -102,13 +102,11 @@ with bcol2:
             db_res=pd.DataFrame(db.table('Students').select('*').eq('ID',st_ID).eq('Passwd',st_passwd).execute().data)
             print(db_res['Address'][0]==base64.b64encode(find_address().encode()).decode('utf-8'))
             print(db_res['Address'][0])
-            ### check
-            st.write(f"Screen width is {streamlit_js_eval(js_expressions='window.innerWidth', key='WIDTH',  want_output = True,)}")
-            time.sleep(3)
-            #print(hashlib.sha256(f"{user_agent}{ip_address}".encode()).hexdigest())
-            ### check
-            #print(base64.b64encode(find_address().encode()).decode('utf-8'))
-            #print(find_address(),base64.b64encode(db_res['Address'][0].decode()).encode('utf-8'))
+            
+            x = streamlit_js_eval(js_expressions='window.innerWidth', key='WIDTH',  want_output = True,)                
+            st.write(f"Width is {x}")
+            time.sleep(2)
+            
             if len(db_res)>0 or db_res['Address'][0]==base64.b64encode(find_address().encode()).decode('utf-8'):
                 find_address()
                 st.session_state['st_ID']=st_ID
