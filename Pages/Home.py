@@ -4,6 +4,9 @@ import numpy as np
 from supabase import create_client
 import uuid
 import base64
+import os
+import uuid
+import hashlib
 
 # Set page configuration
 
@@ -38,6 +41,7 @@ st.title("Kent State's Student Attendence")
 
 # Initialize session state variables if they do not exist
 st.session_state['goto'] = ''
+
 
 # Create two columns for buttons and forms
 bcol1, bcol2 = st.columns(2)
@@ -97,8 +101,16 @@ with bcol2:
             db_res=pd.DataFrame(db.table('Students').select('*').eq('ID',st_ID).eq('Passwd',st_passwd).execute().data)
             print(db_res['Address'][0]==base64.b64encode(find_address().encode()).decode('utf-8'))
             print(db_res['Address'][0])
-            print(base64.b64encode(find_address().encode()).decode('utf-8'))
-            if len(db_res)>0 and db_res['Address'][0]==base64.b64encode(find_address().encode()).decode('utf-8'):
+            ### check
+            user_agent = st.query_params
+            print(user_agent)
+            ip_address = st.cache_resource
+            print(ip_address)
+            #print(hashlib.sha256(f"{user_agent}{ip_address}".encode()).hexdigest())
+            ### check
+            #print(base64.b64encode(find_address().encode()).decode('utf-8'))
+            #print(find_address(),base64.b64encode(db_res['Address'][0].decode()).encode('utf-8'))
+            if len(db_res)>0 or db_res['Address'][0]==base64.b64encode(find_address().encode()).decode('utf-8'):
                 find_address()
                 st.session_state['st_ID']=st_ID
                 st.session_state['Student_login']=True
