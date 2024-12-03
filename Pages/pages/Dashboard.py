@@ -228,13 +228,13 @@ if "Student_login" and "st_ID" in st.session_state and st.session_state["Student
                     if tol_s<timedelta(seconds=10):
                         at2.success('In time')
                         time.sleep(1)
-                    # else:
-                    #     db.table('Attendence').insert([{'Date':dt,'Student ID':ID,'Course ID':int(a_cid),'Attendence': 'NO',"Time_Start":at_start.strftime('%H:%M:%S.%f'),"Time_End":at_end.strftime('%H:%M:%S.%f')}]).execute()
-                    #     at2.error('Sorry not in time')
-                    #     time.sleep(1)
-                    #     del st.session_state['at_sb']
-                    #     del st.session_state['a_sb']
-                    #     st.rerun()
+                    else:
+                        db.table('Attendence').insert([{'Date':dt,'Student ID':ID,'Course ID':int(a_cid),'Attendence': 'NO',"Time_Start":at_start.strftime('%H:%M:%S.%f'),"Time_End":at_end.strftime('%H:%M:%S.%f')}]).execute()
+                        at2.error('Sorry not in time')
+                        time.sleep(1)
+                        del st.session_state['at_sb']
+                        del st.session_state['a_sb']
+                        st.rerun()
                     if (at_end_p-at_start_p)/(at_end-at_start)>1:
                         db.table('Attendence').insert([{'Date':dt,'Student ID':ID,'Course ID':int(a_cid),'Attendence': 'NO',"Time_Start":at_start.strftime('%H:%M:%S.%f'),"Time_End":at_end.strftime('%H:%M:%S.%f')}]).execute()
                         at2.error('Sorry Insufficient audio to analyse')
