@@ -249,7 +249,7 @@ if "Student_login" and "st_ID" in st.session_state and st.session_state["Student
                     print(confidence)
                     if confidence>.50:
                         AT = "YES"
-                    r = db.table('Attendence').insert([{'Date':dt,'Student ID':ID,'Course ID':int(a_cid),'Attendence': AT,"Time_Start":at_start.strftime('%H:%M:%S.%f'),"Time_End":at_end.strftime('%H:%M:%S.%f')}]).execute()                    
+                        r = db.table('Attendence').insert([{'Date':dt,'Student ID':ID,'Course ID':int(a_cid),'Attendence': AT,"Time_Start":at_start.strftime('%H:%M:%S.%f'),"Time_End":at_end.strftime('%H:%M:%S.%f')}]).execute()                    
                     if AT=='YES':
                         at2.success("Recorded successfully")
                     else:
