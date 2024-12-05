@@ -407,7 +407,10 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
         elif at_op=='List out - Attended':
             if at_ID:
                 r = pd.DataFrame(db.table('Attendence').select('*').eq('Student ID',int(at_ID)).eq('Course ID',int(at_sb_ch)).eq('Attendence','YES').execute().data)
-                at22.sucess(at_ID+' Attendence history')
+                if len(r):
+                    at22.success(at_ID+' Attendence history')
+                else:
+                    at22.error('No records found!!')
             else:
                 r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',int(at_sb_ch)).eq('Attendence','YES').execute().data)
             if len(r)>0:
@@ -418,7 +421,10 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
         elif at_op=='List out - Absent':
             if at_ID:
                 r = pd.DataFrame(db.table('Attendence').select('*').eq('Student ID',int(at_ID)).eq('Course ID',int(at_sb_ch)).eq('Attendence','NO').execute().data)
-                at22.error(at_ID+' Attendence history')
+                if len(r):
+                    at22.error(at_ID+' Attendence history')
+                else:
+                    at22.error('No records found!!')
             else:
                 r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',int(at_sb_ch)).eq('Attendence','NO').execute().data)
             if len(r)>0:
