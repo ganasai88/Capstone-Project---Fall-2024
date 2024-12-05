@@ -416,7 +416,7 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
                     del st.session_state['at_ch_ab']
                     st.rerun()
         elif at_op=='Delete a record':
-            r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',at_sb_ch).eq('Student ID',int(at_ID)).execute().data)
+            r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',int(at_sb_ch)).eq('Student ID',int(at_ID)).execute().data)
             at22.write(r)
             at_sno = at22.text_input("Enter ID.no")
             at_c = at22.selectbox("select",['Delete Record','Cancel Operation'])
