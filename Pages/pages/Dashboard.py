@@ -402,14 +402,14 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
             del st.session_state['at_ch_ab']
             st.rerun()
         elif at_op=='List out - Attended':
-            r = pd.DataFrame(db.table('Attendence').select('*').eq('Student ID',int(at_ID)).eq('Attendence','YES').execute().data)
+            r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',int(at_sb_ch)).eq('Attendence','YES').execute().data)
             if len(r)>0:
                 at22.write(r)
                 if at22.button('Done?'):
                     del st.session_state['at_ch_ab']
                     st.rerun()
         elif at_op=='List out - Absent':
-            r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',at_sb_ch).eq('Attendence','NO').execute().data)
+            r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',(at_sb_ch)).eq('Attendence','NO').execute().data)
             if len(r)>0:
                 at22.write(r)
                 if at22.button('Done?'):
