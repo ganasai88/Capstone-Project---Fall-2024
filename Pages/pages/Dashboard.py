@@ -377,7 +377,7 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
     if 'at_ch_ab' in st.session_state and st.session_state['at_ch_ab']==True:
         if at_op=='Change in Attendence':
             if at_ID!=None:
-                r = pd.DataFrame(db.table('Attendence').select('*').eq('Student ID',int(at_ID))eq('Course ID',int(at_sb_ch)).eq('Student ID',int(at_ID)).execute().data)
+                r = pd.DataFrame(db.table('Attendence').select('*').eq('Student ID',int(at_ID)).eq('Course ID',int(at_sb_ch)).eq('Student ID',int(at_ID)).execute().data)
             else:
                 r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',int(at_sb_ch)).eq('Student ID',int(at_ID)).execute().data)
             at22.write(r)
