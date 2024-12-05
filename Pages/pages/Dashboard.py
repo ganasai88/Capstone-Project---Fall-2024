@@ -376,7 +376,7 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
         st.session_state['at_ch_ab']=True
     if 'at_ch_ab' in st.session_state and st.session_state['at_ch_ab']==True:
         if at_op=='Change in Attendence':
-            if int(at_ID)>0:
+            if at_ID:
                 r = pd.DataFrame(db.table('Attendence').select('*').eq('Student ID',int(at_ID)).eq('Course ID',int(at_sb_ch)).eq('Student ID',int(at_ID)).execute().data)
                 at22.write(r)
                 at_sno = at22.text_input("Enter S.No ID")
