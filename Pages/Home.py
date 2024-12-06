@@ -24,7 +24,7 @@ st.markdown(
     """
     <style>
     .stApp {
-        background: linear-gradient(rgba(255, 255, 255, .3), rgba(255, 255, 255, .4)), url("https://imgs.search.brave.com/idSlEnXY5LUDSYYYcIdc-fdU6KkxdW07U8LTxIoa4xg/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9sb2dv/cy13b3JsZC5uZXQv/d3AtY29udGVudC91/cGxvYWRzLzIwMjMv/MTIvS2VudC1TdGF0/ZS1Vbml2ZXJzaXR5/LVN5bWJvbC01MDB4/MjgxLnBuZw");
+        background: linear-gradient(rgba(255, 255, 255, .3), rgba(255, 255, 255, .4)), url("https://imgs.search.brave.com/Omr4O3lq7uxsqu4lVp1btT9oyMk8MZWRkC7THCIcmEQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy9j/L2M0L0tlbnRfU3Rh/dGVfQ0FFRF8xLmpw/Zw");
         background-size: 40%;
         background-repeat: no-repeat;
         background-attachment: fixed;
