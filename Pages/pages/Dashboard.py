@@ -473,7 +473,9 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
     res = pd.DataFrame(db.table('Message').select('Student ID').execute().data)
     IDs = res['Student ID'].unique()
     res = pd.DataFrame(db.table('Students').select('Name').in_('ID',IDs).execute().data)
-    ops = res['Name']+' - '+str(IDs)
+    ops=[]
+    for i,j in zip(res[name],IDs):
+        print(i,j)
     mc = ad11.selectbox('Select the ID',ops)
     mc1 = ad11.selectbox('choose',['Read','Unread'])
     if ad11.button('Fetch!'):
