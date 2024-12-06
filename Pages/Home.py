@@ -28,7 +28,7 @@ st.markdown(
         background-size: 40%;
         background-repeat: no-repeat;
         background-attachment: fixed;
-        background-position: 80%;
+        background-position: 55%;
     }
     </style>
     """,
