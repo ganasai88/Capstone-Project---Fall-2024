@@ -120,6 +120,10 @@ st.markdown(
 
 
 
+# Now, you can keep the rest of your code as is.
+# Your custom CSS styles will be applied to the app, giving it a more appealing look and feel.
+
+
 
 def Feature(a):
     sr, val = wavf.read(a)
@@ -244,7 +248,8 @@ if "Student_login" and "st_ID" in st.session_state and st.session_state["Student
                     confidence = cosine_similarity(np.reshape(pro,(1,-1)),np.reshape(stu,(1,-1)))[0][0]
                     print(confidence)
                     if confidence>.70:
-                        AT = "YES"                       
+                        AT = "YES"
+                        r = db.table('Attendence').insert([{'Date':dt,'Student ID':ID,'Course ID':int(a_cid),'Attendence': AT,"Time_Start":at_start.strftime('%H:%M:%S.%f'),"Time_End":at_end.strftime('%H:%M:%S.%f')}]).execute()                    
                     if AT=='YES':
                         at2.success("Recorded successfully")
                     else:
@@ -394,6 +399,17 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
         elif at_op=='Approval Key':
             r = db.table('Students').select('Status').eq('ID',int(at_ID)).execute().data
             print(r)
+            if r[0]['Status']=='REQUIRED':
+                r = db.table('Students').update({'Status':'APPROVED'}).eq('ID',int(at_ID)).execute()
+                if r:
+                    at11.success('Approved!!')
+                    time.sleep(1)
+            else:
+                at11.warning('No need to Approve!!')
+                time.sleep(1)
+                del st.session_state['at_ch_ab']
+        elif at_op=='Approval Key':
+            r = db.table('Students').select('Status').eq('ID',int(at_ID)).execute().data
             if r[0]['Status']=='REQUIRED':
                 r = db.table('Students').update({'Status':'APPROVED'}).eq('ID',int(at_ID)).execute()
                 if r:
