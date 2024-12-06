@@ -24,7 +24,7 @@ st.markdown(
     """
     <style>
     .stApp {
-        background: linear-gradient(rgba(255, 255, 255, .3), rgba(255, 255, 255, .4)), url("");
+        background: linear-gradient(rgba(255, 255, 255, .3), rgba(255, 255, 255, .4)), url("https://www-s3-live.kent.edu/s3fs-root/s3fs-public/athletic-wordmark.jpg");
         background-size: 40%;
         background-repeat: no-repeat;
         background-attachment: fixed;
