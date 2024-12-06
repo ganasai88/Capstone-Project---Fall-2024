@@ -24,7 +24,7 @@ st.markdown(
     """
     <style>
     .stApp {
-        background: linear-gradient(rgba(255, 255, 255, .3), rgba(255, 255, 255, .4)), url("https://learfieldamplify.com/wp-content/uploads/2022/07/square.png");
+        background: linear-gradient(rgba(255, 255, 255, .3), rgba(255, 255, 255, .4)), url("");
         background-size: 40%;
         background-repeat: no-repeat;
         background-attachment: fixed;
