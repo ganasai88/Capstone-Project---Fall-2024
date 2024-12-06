@@ -64,7 +64,7 @@ st.markdown(
     /* App Background */
     .stApp {
         background: linear-gradient(rgba(240, 248, 255, 0.9), rgba(230, 230, 250, 0.7)),
-                    url("https://imgs.search.brave.com/vW6JK7sBhpNgmDbgRyWmLzGONQI6M3sUm6fUWiKUd6A/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvMTMw/ODk2MTM2Ny9waG90/by9rZW50LXN0YXRl/LXVuaXZlcnNpdHkt/Y2FtcHVzLW9oaW8t/dXNhLmpwZz9zPTYx/Mng2MTImdz0wJms9/MjAmYz1ZSDZBUF9W/YWVpVmJlVzZNWEo3/NF9IRkI0dTY2a0F2/cEQzYWNocjFBRTFz/PQ");
+                    url("https://imgs.search.brave.com/Omr4O3lq7uxsqu4lVp1btT9oyMk8MZWRkC7THCIcmEQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy9j/L2M0L0tlbnRfU3Rh/dGVfQ0FFRF8xLmpw/Zw");
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
