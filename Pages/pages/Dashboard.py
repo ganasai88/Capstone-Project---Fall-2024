@@ -477,6 +477,7 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
     mc1 = ad11.selectbox('choose',['Read','Unread'])
     if ad11.button('Fetch!'):
         mc = mc[mc.index('[')+1:mc.index(']')]
+        print(mc)
         mc = int(mc)
         st.session_state['fetch']=True
     if 'fetch' in st.session_state and st.session_state['fetch']:
