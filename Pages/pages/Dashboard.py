@@ -64,7 +64,7 @@ st.markdown(
     /* App Background */
     .stApp {
         background: linear-gradient(rgba(240, 248, 255, 0.9), rgba(230, 230, 250, 0.7)),
-                    url("https://imgs.search.brave.com/vW6JK7sBhpNgmDbgRyWmLzGONQI6M3sUm6fUWiKUd6A/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvMTMw/ODk2MTM2Ny9waG90/by9rZW50LXN0YXRl/LXVuaXZlcnNpdHkt/Y2FtcHVzLW9oaW8t/dXNhLmpwZz9zPTYx/Mng2MTImdz0wJms9/MjAmYz1ZSDZBUF9W/YWVpVmJlVzZNWEo3/NF9IRkI0dTY2a0F2/cEQzYWNocjFBRTFz/PQ");
+                    url("https://imgs.search.brave.com/Omr4O3lq7uxsqu4lVp1btT9oyMk8MZWRkC7THCIcmEQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy9j/L2M0L0tlbnRfU3Rh/dGVfQ0FFRF8xLmpw/Zw");
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
@@ -247,13 +247,14 @@ if "Student_login" and "st_ID" in st.session_state and st.session_state["Student
                     AT = "NO"
                     confidence = cosine_similarity(np.reshape(pro,(1,-1)),np.reshape(stu,(1,-1)))[0][0]
                     print(confidence)
-                    if confidence>.50:
+                    if confidence>.70:
                         AT = "YES"
                         r = db.table('Attendence').insert([{'Date':dt,'Student ID':ID,'Course ID':int(a_cid),'Attendence': AT,"Time_Start":at_start.strftime('%H:%M:%S.%f'),"Time_End":at_end.strftime('%H:%M:%S.%f')}]).execute()                    
                     if AT=='YES':
                         at2.success("Recorded successfully")
                     else:
                         at2.warning('Marked as Absent')
+                    r = db.table('Attendence').insert([{'Date':dt,'Student ID':ID,'Course ID':int(a_cid),'Attendence': AT,"Time_Start":at_start.strftime('%H:%M:%S.%f'),"Time_End":at_end.strftime('%H:%M:%S.%f')}]).execute()
                     time.sleep(1)
                 else:
                     at2.warning('Attendence taken already')
@@ -378,18 +379,33 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
     at_ch_sb = at11.button("Fetch")
     if at_ch_sb:
         st.session_state['at_ch_ab']=True
-    if 'at_ch_ab' in st.session_state and st.session_state['at_ch_ab']:
+    if 'at_ch_ab' in st.session_state and st.session_state['at_ch_ab']==True:
         if at_op=='Change in Attendence':
-            r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',at_sb_ch).eq('Student ID',int(at_ID)).execute().data)
-            at22.write(r)
-            at_sno = at22.text_input("Enter S.No ID")
-            at_c = at22.selectbox("select",['YES','NO'])
-            if at22.button('Change'):
-                r=db.table('Attendence').update({'Attendence':at_c}).eq('ID',int(at_sno)).execute()
-                if len(r):
-                    at22.success('Updated!!')
-                else:
-                    at22.warning('Record not found')
+            if at_ID:
+                r = pd.DataFrame(db.table('Attendence').select('*').eq('Student ID',int(at_ID)).eq('Course ID',int(at_sb_ch)).eq('Student ID',int(at_ID)).execute().data)
+                at22.write(r)
+                at_sno = at22.text_input("Enter S.No ID")
+                at_c = at22.selectbox("select",['YES','NO'])
+                if at22.button('Change'):
+                    r=db.table('Attendence').update({'Attendence':at_c}).eq('ID',int(at_sno)).execute()
+                    if len(r):
+                        at22.success('Updated!!')
+                    else:
+                        at22.warning('Record not found')
+            else:
+                at22.warning('Fill the Student ID!!')
+            time.sleep(1)
+            del st.session_state['at_ch_ab']
+        elif at_op=='Approval Key':
+            r = db.table('Students').select('Status').eq('ID',int(at_ID)).execute().data
+            print(r)
+            if r[0]['Status']=='REQUIRED':
+                r = db.table('Students').update({'Status':'APPROVED'}).eq('ID',int(at_ID)).execute()
+                if r:
+                    at11.success('Approved!!')
+                    time.sleep(1)
+            else:
+                at11.warning('No need to Approve!!')
                 time.sleep(1)
                 del st.session_state['at_ch_ab']
         elif at_op=='Approval Key':
@@ -405,21 +421,35 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
             del st.session_state['at_ch_ab']
             st.rerun()
         elif at_op=='List out - Attended':
-            r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',at_sb_ch).eq('Student ID',int(at_ID)).eq('Attendence','YES').execute().data)
+            if at_ID:
+                r = pd.DataFrame(db.table('Attendence').select('*').eq('Student ID',int(at_ID)).eq('Course ID',int(at_sb_ch)).eq('Attendence','YES').execute().data)
+                if len(r):
+                    at22.success(at_ID+' Attendence history')
+                else:
+                    at22.error('No records found!!')
+            else:
+                r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',int(at_sb_ch)).eq('Attendence','YES').execute().data)
             if len(r)>0:
                 at22.write(r)
                 if at22.button('Done?'):
                     del st.session_state['at_ch_ab']
                     st.rerun()
         elif at_op=='List out - Absent':
-            r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',at_sb_ch).eq('Student ID',int(at_ID)).eq('Attendence','NO').execute().data)
+            if at_ID:
+                r = pd.DataFrame(db.table('Attendence').select('*').eq('Student ID',int(at_ID)).eq('Course ID',int(at_sb_ch)).eq('Attendence','NO').execute().data)
+                if len(r):
+                    at22.error(at_ID+' Attendence history')
+                else:
+                    at22.error('No records found!!')
+            else:
+                r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',int(at_sb_ch)).eq('Attendence','NO').execute().data)
             if len(r)>0:
                 at22.write(r)
                 if at22.button('Done?'):
                     del st.session_state['at_ch_ab']
                     st.rerun()
         elif at_op=='Delete a record':
-            r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',at_sb_ch).eq('Student ID',int(at_ID)).execute().data)
+            r = pd.DataFrame(db.table('Attendence').select('*').eq('Course ID',int(at_sb_ch)).eq('Student ID',int(at_ID)).execute().data)
             at22.write(r)
             at_sno = at22.text_input("Enter ID.no")
             at_c = at22.selectbox("select",['Delete Record','Cancel Operation'])
@@ -443,10 +473,12 @@ elif "Admin_login" and "ad_usnm" in st.session_state and st.session_state["Admin
     res = pd.DataFrame(db.table('Message').select('Student ID').execute().data)
     IDs = res['Student ID'].unique()
     res = pd.DataFrame(db.table('Students').select('Name').in_('ID',IDs).execute().data)
-    mc = ad11.selectbox('Select the ID',res['Name']+' - '+str(IDs))
+    ops=[]
+    for i,j in zip(list(res['Name']),list(IDs)):
+        ops.append(str(i)+'-'+str(j))
+    mc = ad11.selectbox('Select the ID',ops)
     mc1 = ad11.selectbox('choose',['Read','Unread'])
-    mc = mc[mc.index('[')+1:-1]
-    mc = int(mc)
+    mc = int(mc[mc.index('-')+1:])
     if ad11.button('Fetch!'):
         st.session_state['fetch']=True
     if 'fetch' in st.session_state and st.session_state['fetch']:
